@@ -6,7 +6,5 @@ import com.example.proyecto.lenguajes.modelos.Carrito;
 
 public interface CarritoRepository extends CrudRepository<Carrito, Integer>{
 	
-	public void realizarPago(Integer carritoId);
-
-	public void eliminarProductoDelCarrito(Integer carritoId, Integer productoId);
+	
 }

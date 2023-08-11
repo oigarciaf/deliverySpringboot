@@ -2,11 +2,14 @@ package com.example.proyecto.lenguajes.modelos;
 
 import java.time.LocalDate;
 import java.util.List;
+import javax.persistence.JoinColumn;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -31,8 +34,9 @@ public class Carrito {
     @OneToOne
     private Usuario usuario;
     
-    @OneToMany(mappedBy = "carrito")
+    @OneToMany(mappedBy = "orden")
     private List<DetalleOrden> detalles;
+
     
     private String metodoPago; // "tarjeta" o "paypal"
     
@@ -45,4 +49,12 @@ public class Carrito {
     private String correoPaypal;
     
     private String estado; 
+    
+    @ManyToMany
+    @JoinTable(name = "carrito_producto",
+               joinColumns = @JoinColumn(name = "carrito_id"),
+               inverseJoinColumns = @JoinColumn(name = "producto_id"))
+    private List<Producto> productos; 
+
+
 }

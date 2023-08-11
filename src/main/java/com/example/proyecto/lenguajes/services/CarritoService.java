@@ -15,7 +15,7 @@ import com.example.proyecto.lenguajes.repositories.CarritoRepository;
 import com.example.proyecto.lenguajes.repositories.ProductoRepository;
 
 @Service
-public class CarritoService {
+public class CarritoService implements Carritoservices{
 	
 	//esto agregue
 	@Autowired
