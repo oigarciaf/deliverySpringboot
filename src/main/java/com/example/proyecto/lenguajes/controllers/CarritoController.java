@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,9 +19,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.proyecto.lenguajes.modelos.Carrito;
 import com.example.proyecto.lenguajes.modelos.DetalleOrden;
 import com.example.proyecto.lenguajes.modelos.Orden;
 import com.example.proyecto.lenguajes.modelos.Producto;
+import com.example.proyecto.lenguajes.modelos.Usuario;
+import com.example.proyecto.lenguajes.repositories.UsuarioRepository;
 import com.example.proyecto.lenguajes.services.CarritoService;
 import com.example.proyecto.lenguajes.services.InvalidPaymentException;
 import com.example.proyecto.lenguajes.services.impl.DetalleOrdenServiceImpl;
@@ -46,6 +52,8 @@ public class CarritoController {
 	@Autowired
 	private DetalleOrdenServiceImpl detalleordenserviseimpl;
 	
+	@Autowired
+	private UsuarioRepository usuarioRepository;
 	
 	@Autowired
 	private final CarritoService carritoService;
@@ -122,13 +130,23 @@ public class CarritoController {
 
     @PostMapping("/agregar-producto")
     public ResponseEntity<String> agregarProductoAlCarrito(
-            @RequestParam Integer carritoId,
             @RequestParam Integer productoId,
             @RequestParam double cantidad) {
-        carritoService.agregarProductoAlCarrito(carritoId, productoId, cantidad);
+    	Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
+        Carrito carrito = usuarioAutenticado.getCarrito();
+        carritoService.agregarProductoAlCarrito(carrito.getId(), productoId, cantidad);
+
         return ResponseEntity.ok("Producto agregado al carrito.");
     }
     
+    private Usuario obtenerUsuarioAutenticado() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String username = userDetails.getUsername();
+        
+        return usuarioRepository.findByUsername(username);
+    }
+
     
     @PostMapping("/realizar-pago")
     public ResponseEntity<String> realizarPago(
